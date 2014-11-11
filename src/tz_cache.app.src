@@ -1,0 +1,12 @@
+{application, tz_cache,
+ [
+  {description, "Simple cache for ezic"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { tz_cache_app, []}},
+  {env, []}
+ ]}.
