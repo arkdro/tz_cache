@@ -15,6 +15,9 @@
          {start_ezic, true},
          {tzdata_dir, "/tmp/1/tz"},
          {db_dir, "/tmp/1/db"},
+         %% truncate datetime before storing into cache.
+         %% Available: year, month, day, hour, minute, second.
+         %% {truncate, hour},
          {clean_interval, 10},
          {ttl, 1800}
         ]}

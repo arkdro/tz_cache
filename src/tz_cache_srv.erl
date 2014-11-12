@@ -108,9 +108,10 @@ make_req_local_to_utc(Local_datetime, Tz_name) ->
     {local_to_utc, Local_datetime, Tz_name}.
 
 get_data_common(Req, From) ->
-    Reply = get_data_from_ezic(Req),
+    Truncated = truncate_request(Req),
+    Reply = get_data_from_ezic(Truncated),
     gen_server:reply(From, Reply),
-    store_to_cache(Req, Reply).
+    store_to_cache(Truncated, Reply).
 
 get_data_from_ezic({utc_to_local, UTC_datetime, Tz_name}) ->
     ezic:utc_to_local(UTC_datetime, Tz_name);
@@ -175,4 +176,28 @@ start_ezic() ->
     ok = application:set_env(App, tzdata_dir, Tz_dir),
     ok = application:set_env(App, db_dir, Db_dir),
     ok = application:start(App).
+
+truncate_request(Req) ->
+    case application:get_env(truncate) of
+        undefined ->
+            Req;
+        {ok, Val} ->
+            truncate_request(Val, Req)
+    end.
+
+truncate_request(second, {Type, {Date, {Hour, Min, _}}, Zone}) ->
+    {Type, {Date, {Hour, Min, 0}}, Zone};
+truncate_request(minute, {Type, {Date, {Hour, _, _}}, Zone}) ->
+    {Type, {Date, {Hour, 0, 0}}, Zone};
+truncate_request(hour, {Type, {Date, _}, Zone}) ->
+    {Type, {Date, zero_time()}, Zone};
+truncate_request(day, {Type, {{Y, M, _}, _}, Zone}) ->
+    {Type, {{Y, M, 1}, zero_time()}, Zone};
+truncate_request(month, {Type, {{Y, _, _}, _}, Zone}) ->
+    {Type, {{Y, 1, 1}, zero_time()}, Zone};
+truncate_request(year, {Type, _, Zone}) ->
+    {Type, {{0, 1, 1}, zero_time()}, Zone}.
+
+zero_time() ->
+    {0, 0, 0}.
 
