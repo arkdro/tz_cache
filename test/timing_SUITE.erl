@@ -47,9 +47,11 @@ bunch1(Config) ->
 
 start_ezic(Config) ->
     App = ezic,
-    Dir = build_abs_data_dir(Config),
+    Tz_dir = build_abs_data_dir(Config),
+    Db_dir = build_abs_db_dir(Config),
     ok = application:load(App),
-    ok = application:set_env(App, tzdata_dir, Dir),
+    ok = application:set_env(App, tzdata_dir, Tz_dir),
+    ok = application:set_env(App, db_dir, Db_dir),
     ok = application:start(App).
 
 build_abs_data_dir(Config) ->
@@ -58,8 +60,17 @@ build_abs_data_dir(Config) ->
     Dir = ?config(data_dir, Config),
     filename:join([Dir, Tzdata_dir]).
 
+build_abs_db_dir(Config) ->
+    Local = get_local_config(Config),
+    Db_dir = get_db_dir(Local),
+    Dir = ?config(data_dir, Config),
+    filename:join([Dir, Db_dir]).
+
 get_tzdata_dir(Local) ->
     proplists:get_value(tzdata_dir, Local).
+
+get_db_dir(Local) ->
+    proplists:get_value(db_dir, Local).
 
 stop_ezic() ->
     application:stop(ezic).
