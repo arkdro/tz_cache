@@ -6,7 +6,7 @@
 
 suite() ->
     [
-     {timetrap, {seconds, 30}}
+     {timetrap, {seconds, 120}}
     ].
 
 all() ->
