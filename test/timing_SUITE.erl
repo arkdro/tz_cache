@@ -128,8 +128,7 @@ get_step(L) ->
     proplists:get_value(step, L).
 
 do_requests(Reqs) ->
-    %% ezic:local_to_utc(local_datetime(), TimeZone),
-    erlang:error(not_implemented).
+    [ezic:local_to_utc(Datetime, TimeZone) || {Datetime, TimeZone} <- Reqs].
 
 get_local_config(Config) ->
     File = "local.conf",
