@@ -99,19 +99,24 @@ create_bunch1_requests(Config) ->
     Start = get_start(Config),
     Stop = get_stop(Config),
     Step = get_step(Config),
-    create_bunch1_requests(Start, Stop, Step).
+    Zone = get_zone(Config),
+    create_bunch1_requests(Start, Stop, Step, Zone).
 
-create_bunch1_requests(Start, Stop, Step) ->
+create_bunch1_requests(Start, Stop, Step, Zone) ->
     T1 = calendar:datetime_to_gregorian_seconds(Start),
     T2 = calendar:datetime_to_gregorian_seconds(Stop),
     Dt = calendar:time_to_seconds(Step),
-    create_bunch1_requests(T1, T2, Dt, []).
+    create_bunch1_requests(T1, T2, Dt, Zone, []).
 
-create_bunch1_requests(Cur, Stop, _, Acc) when Cur > Stop ->
+create_bunch1_requests(Cur, Stop, _, _, Acc) when Cur > Stop ->
     lists:reverse(Acc);
-create_bunch1_requests(Cur, Stop, Step, Acc) ->
+create_bunch1_requests(Cur, Stop, Step, Zone, Acc) ->
     D = calendar:gregorian_seconds_to_datetime(Cur),
-    create_bunch1_requests(Cur + Step, Stop, Step, [D | Acc]).
+    Req = {D, Zone},
+    create_bunch1_requests(Cur + Step, Stop, Step, Zone, [Req | Acc]).
+
+get_zone(L) ->
+    proplists:get_value(tz, L).
 
 get_start(L) ->
     proplists:get_value(start, L).
