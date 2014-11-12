@@ -1,12 +1,18 @@
+%% -*- mode: erlang;erlang-indent-level: 4;indent-tabs-mode: nil -*-
+%% ex: ts=4 sw=4 ft=erlang et
+
 {application, tz_cache,
  [
   {description, "Simple cache for ezic"},
-  {vsn, "0.0.1"},
+  {vsn, "0.0.2"},
   {registered, []},
   {applications, [
                   kernel,
                   stdlib
                  ]},
   {mod, { tz_cache_app, []}},
-  {env, []}
+  {env, [
+         {clean_interval, 10},
+         {ttl, 1800}
+        ]}
  ]}.
