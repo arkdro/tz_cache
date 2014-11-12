@@ -6,7 +6,7 @@
 
 suite() ->
     [
-     {timetrap, {seconds, 120}}
+     {timetrap, {seconds, 180}}
     ].
 
 all() ->
@@ -20,15 +20,18 @@ groups() ->
                 {group, line1}
                ]},
      {line1, [], [
+                  bunch2,
                   bunch1
                  ]}
     ].
 
 init_per_suite(Config) ->
+    start_tz_cache(Config),
     start_ezic(Config),
     Config.
 
 end_per_suite(_Config) ->
+    stop_tz_cache(),
     stop_ezic(),
     ok.
 
@@ -37,6 +40,15 @@ bunch1(Config) ->
     case is_bunch1_enabled(Local) of
         true ->
             bunch1_test(Config, Local);
+        false ->
+            skip
+    end.
+
+bunch2(Config) ->
+    Local = get_local_config(Config),
+    case is_bunch2_enabled(Local) of
+        true ->
+            bunch2_test(Config, Local);
         false ->
             skip
     end.
@@ -53,6 +65,9 @@ start_ezic(Config) ->
     ok = application:set_env(App, tzdata_dir, Tz_dir),
     ok = application:set_env(App, db_dir, Db_dir),
     ok = application:start(App).
+
+start_tz_cache(_Config) ->
+    ok = application:start(tz_cache).
 
 build_abs_data_dir(Config) ->
     Local = get_local_config(Config),
@@ -75,12 +90,32 @@ get_db_dir(Local) ->
 stop_ezic() ->
     application:stop(ezic).
 
+stop_tz_cache() ->
+    application:stop(tz_cache).
+
 is_bunch1_enabled(Local) ->
     Bunch = proplists:get_value(bunch1, Local, []),
     is_enabled(Bunch).
 
+is_bunch2_enabled(Local) ->
+    Bunch = proplists:get_value(bunch2, Local, []),
+    is_enabled(Bunch).
+
 is_enabled(L) ->
     proplists:get_bool(enabled, L).
+
+bunch2_test(_, Local) ->
+    Config = get_bunch2_config(Local),
+    Reqs = create_bunch1_requests(Config),
+    T1 = os:timestamp(),
+    cache_warmup(Reqs),
+    T2 = os:timestamp(),
+    do_requests_with_cache(Reqs),
+    T3 = os:timestamp(),
+    Total = timer:now_diff(T3, T1),
+    Dur = timer:now_diff(T3, T2),
+    ct:pal("bunch2 dur: ~p, total: ~p", [Dur, Total]),
+    ok.
 
 bunch1_test(_, Local) ->
     Config = get_bunch1_config(Local),
@@ -91,6 +126,9 @@ bunch1_test(_, Local) ->
     Dur = timer:now_diff(T2, T1),
     ct:pal("bunch1 dur: ~p", [Dur]),
     ok.
+
+get_bunch2_config(L) ->
+    proplists:get_value(bunch2, L).
 
 get_bunch1_config(L) ->
     proplists:get_value(bunch1, L).
@@ -127,8 +165,14 @@ get_stop(L) ->
 get_step(L) ->
     proplists:get_value(step, L).
 
+cache_warmup(Reqs) ->
+    do_requests_with_cache(Reqs).
+
 do_requests(Reqs) ->
     [ezic:local_to_utc(Datetime, TimeZone) || {Datetime, TimeZone} <- Reqs].
+
+do_requests_with_cache(Reqs) ->
+    [tz_cache:local_to_utc(Datetime, TimeZone) || {Datetime, TimeZone} <- Reqs].
 
 get_local_config(Config) ->
     File = "local.conf",
