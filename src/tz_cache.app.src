@@ -4,7 +4,7 @@
 {application, tz_cache,
  [
   {description, "Simple cache for ezic"},
-  {vsn, "0.0.2"},
+  {vsn, "0.0.4"},
   {registered, []},
   {applications, [
                   kernel,
