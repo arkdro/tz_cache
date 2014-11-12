@@ -34,7 +34,7 @@ utc_to_local(UTC_datetime, Tz_name) ->
     case ets:lookup(Tab, Req) of
         [] ->
             gen_server:call(?SERVER, Req);
-        [{_, Val}] ->
+        [{_, Val, _}] ->
             Val
     end.
 
@@ -44,7 +44,7 @@ local_to_utc(Local_datetime, Tz_name) ->
     case ets:lookup(Tab, Req) of
         [] ->
             gen_server:call(?SERVER, Req);
-        [{_, Val}] ->
+        [{_, Val, _}] ->
             Val
     end.
 
