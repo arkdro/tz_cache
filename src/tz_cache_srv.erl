@@ -55,6 +55,7 @@ local_to_utc(Local_datetime, Tz_name) ->
 init([]) ->
     ets:new(tab(), [named_table, protected]),
     set_clean_timer(),
+    start_delayed_ezic(),
     {ok, #state{}}.
 
 handle_call({utc_to_local, _, _} = Req, From, State) ->
@@ -70,6 +71,9 @@ handle_call(_Request, _From, State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
+handle_info(start_ezic, State) ->
+    start_ezic(),
+    {noreply, State};
 handle_info(clean, State) ->
     N = clean_old_data(),
     error_logger:info_report({cleaned, N}),
@@ -154,4 +158,21 @@ clean_old_data() ->
              ],
     Spec = [{Item, Guards, [true]}],
     ets:select_delete(tab(), Spec).
+
+start_delayed_ezic() ->
+    case application:get_env(start_ezic) of
+        {ok, true} ->
+            erlang:send_after(0, self(), start_ezic);
+        _ ->
+            skip
+    end.
+
+start_ezic() ->
+    {ok, Tz_dir} = application:get_env(tzdata_dir),
+    {ok, Db_dir} = application:get_env(db_dir),
+    App = ezic,
+    ok = application:load(App),
+    ok = application:set_env(App, tzdata_dir, Tz_dir),
+    ok = application:set_env(App, db_dir, Db_dir),
+    ok = application:start(App).
 
