@@ -82,8 +82,9 @@ is_bunch1_enabled(Local) ->
 is_enabled(L) ->
     proplists:get_bool(enabled, L).
 
-bunch1_test(_Config, Local) ->
-    Reqs = create_bunch1_requests(Local),
+bunch1_test(_, Local) ->
+    Config = get_bunch1_config(Local),
+    Reqs = create_bunch1_requests(Config),
     T1 = os:timestamp(),
     do_requests(Reqs),
     T2 = os:timestamp(),
@@ -91,11 +92,38 @@ bunch1_test(_Config, Local) ->
     ct:pal("bunch1 dur: ~p", [Dur]),
     ok.
 
-create_bunch1_requests(Local) ->
-    erlang:error(not_implemented).
+get_bunch1_config(L) ->
+    proplists:get_value(bunch1, L).
+
+create_bunch1_requests(Config) ->
+    Start = get_start(Config),
+    Stop = get_stop(Config),
+    Step = get_step(Config),
+    create_bunch1_requests(Start, Stop, Step).
+
+create_bunch1_requests(Start, Stop, Step) ->
+    T1 = calendar:datetime_to_gregorian_seconds(Start),
+    T2 = calendar:datetime_to_gregorian_seconds(Stop),
+    Dt = calendar:time_to_seconds(Step),
+    create_bunch1_requests(T1, T2, Dt, []).
+
+create_bunch1_requests(Cur, Stop, _, Acc) when Cur > Stop ->
+    lists:reverse(Acc);
+create_bunch1_requests(Cur, Stop, Step, Acc) ->
+    D = calendar:gregorian_seconds_to_datetime(Cur),
+    create_bunch1_requests(Cur + Step, Stop, Step, [D | Acc]).
+
+get_start(L) ->
+    proplists:get_value(start, L).
+
+get_stop(L) ->
+    proplists:get_value(stop, L).
+
+get_step(L) ->
+    proplists:get_value(step, L).
 
 do_requests(Reqs) ->
-    ezic:local_to_utc(local_datetime(), TimeZone)
+    %% ezic:local_to_utc(local_datetime(), TimeZone),
     erlang:error(not_implemented).
 
 get_local_config(Config) ->
