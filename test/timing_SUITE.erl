@@ -62,7 +62,7 @@ get_tzdata_dir(Local) ->
     proplists:get_value(tzdata_dir, Local).
 
 stop_ezic() ->
-    application:stop(App).
+    application:stop(ezic).
 
 is_bunch1_enabled(Local) ->
     Bunch = proplists:get_value(bunch1, Local, []),
