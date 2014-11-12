@@ -25,16 +25,54 @@ groups() ->
     ].
 
 init_per_suite(Config) ->
+    start_ezic(Config),
     Config.
 
 end_per_suite(_Config) ->
+    stop_ezic(),
     ok.
 
 bunch1(Config) ->
     Local = get_local_config(Config),
-    Dat = stub,
-    ct:pal("dat: ~p", [Dat]),
+    case is_bunch1_enabled(Local) of
+        true ->
+            bunch1_test(Config, Local);
+        false ->
+            skip
+    end.
+
+%% ===================================================================
+%% Internal functions
+%% ===================================================================
+
+start_ezic(Config) ->
+    erlang:error(not_implemented).
+
+stop_ezic() ->
+    erlang:error(not_implemented).
+
+is_bunch1_enabled(Local) ->
+    Bunch = proplists:get_value(bunch1, Local, []),
+    is_enabled(Bunch).
+
+is_enabled(L) ->
+    proplists:get_bool(enabled, L).
+
+bunch1_test(_Config, Local) ->
+    Reqs = create_bunch1_requests(Local),
+    T1 = os:timestamp(),
+    do_requests(Reqs),
+    T2 = os:timestamp(),
+    Dur = timer:now_diff(T2, T1),
+    ct:pal("bunch1 dur: ~p", [Dur]),
     ok.
+
+create_bunch1_requests(Local) ->
+    erlang:error(not_implemented).
+
+do_requests(Reqs) ->
+    ezic:local_to_utc(local_datetime(), TimeZone)
+    erlang:error(not_implemented).
 
 get_local_config(Config) ->
     File = "local.conf",
