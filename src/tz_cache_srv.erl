@@ -130,7 +130,7 @@ get_clean_interval() ->
     case application:get_env(clean_interval) of
         undefined ->
             default_clean_interval();
-        Val ->
+        {ok, Val} ->
             Val
     end.
 
@@ -138,7 +138,7 @@ get_ttl() ->
     case application:get_env(ttl) of
         undefined ->
             default_ttl();
-        Val ->
+        {ok, Val} ->
             Val
     end.
 
