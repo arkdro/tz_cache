@@ -46,10 +46,23 @@ bunch1(Config) ->
 %% ===================================================================
 
 start_ezic(Config) ->
-    erlang:error(not_implemented).
+    App = ezic,
+    Dir = build_abs_data_dir(Config),
+    ok = application:load(App),
+    ok = application:set_env(App, tzdata_dir, Dir),
+    ok = application:start(App).
+
+build_abs_data_dir(Config) ->
+    Local = get_local_config(Config),
+    Tzdata_dir = get_tzdata_dir(Local),
+    Dir = ?config(data_dir, Config),
+    filename:join([Dir, Tzdata_dir]).
+
+get_tzdata_dir(Local) ->
+    proplists:get_value(tzdata_dir, Local).
 
 stop_ezic() ->
-    erlang:error(not_implemented).
+    application:stop(App).
 
 is_bunch1_enabled(Local) ->
     Bunch = proplists:get_value(bunch1, Local, []),
