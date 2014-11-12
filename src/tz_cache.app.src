@@ -12,6 +12,9 @@
                  ]},
   {mod, { tz_cache_app, []}},
   {env, [
+         {start_ezic, true},
+         {tzdata_dir, "/tmp/1/tz"},
+         {db_dir, "/tmp/1/db"},
          {clean_interval, 10},
          {ttl, 1800}
         ]}
