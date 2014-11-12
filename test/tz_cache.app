@@ -1,10 +1,11 @@
 {application,tz_cache,
              [{description,"Simple cache for ezic. Common tests."},
-              {vsn,"0.0.2"},
+              {vsn,"0.0.4"},
               {registered,[]},
               {applications,[kernel,stdlib]},
               {mod,{tz_cache_app,[]}},
               {env,[{start_ezic,false},
+                    {truncate, minute},
                     {clean_interval,10},
                     {ttl,1800}]},
               {modules,[tz_cache,tz_cache_app,tz_cache_srv,tz_cache_sup]}]}.

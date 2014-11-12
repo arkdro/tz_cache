@@ -115,6 +115,7 @@ bunch2_test(_, Local) ->
     Total = timer:now_diff(T3, T1),
     Dur = timer:now_diff(T3, T2),
     ct:pal("bunch2 dur: ~p, total: ~p", [Dur, Total]),
+    ct:pal("bunch2 info: ~p", [ets:info(tz_cache_srv)]),
     ok.
 
 bunch1_test(_, Local) ->
