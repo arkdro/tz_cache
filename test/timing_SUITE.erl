@@ -54,7 +54,7 @@ bunch2(Config) ->
             skip
     end.
 
-compare(Config) ->
+compare(_Config) ->
     ok = compare_one_item({{2014,10,15}, {1,5,3}}, "Rome"), %% no zone
     ok = compare_one_item({{2014,10,15}, {2,5,3}}, "Europe/Rome"),
     ok = compare_one_item({{2013,11,25}, {21,56,13}}, "PCT"), %% no zone
