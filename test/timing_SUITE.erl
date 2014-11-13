@@ -20,6 +20,7 @@ groups() ->
                 {group, line1}
                ]},
      {line1, [], [
+                  compare,
                   bunch2,
                   bunch1
                  ]}
@@ -53,9 +54,18 @@ bunch2(Config) ->
             skip
     end.
 
+compare(Config) ->
+    ok = compare_one_item({{2014,10,15}, {1,5,3}}, "Rome"), %% no zone
+    ok = compare_one_item({{2014,10,15}, {2,5,3}}, "Europe/Rome"),
+    ok = compare_one_item({{2013,11,25}, {21,56,13}}, "PCT"), %% no zone
+    ok = compare_one_item({{2013,11,25}, {22,56,13}}, "America/Phoenix"),
+    ok = compare_one_item({{2011,6,1}, {15,35,55}}, "Pacific/Norfolk"),
+    ok.
+
 %% ===================================================================
 %% Internal functions
 %% ===================================================================
+
 
 start_ezic(Config) ->
     App = ezic,
@@ -183,4 +193,25 @@ get_local_config(Config) ->
     {ok, [Local]} = file:consult(Path),
     %% ct:pal("local: ~p", [Local]),
     Local.
+
+compare_one_item(Datetime, Timezone) ->
+    compare_one_item_local_to_utc(Datetime, Timezone),
+    compare_one_item_utc_to_local(Datetime, Timezone),
+    ok.
+
+compare_one_item_local_to_utc(Datetime, Timezone) ->
+    Res1 = ezic:local_to_utc(Datetime, Timezone),
+    ct:pal("res1l: ~p, ~p, ~p", [Datetime, Timezone, Res1]),
+    Res2 = tz_cache:local_to_utc(Datetime, Timezone),
+    ct:pal("res2l: ~p, ~p, ~p", [Datetime, Timezone, Res2]),
+    Res1 = Res2,
+    ok.
+
+compare_one_item_utc_to_local(Datetime, Timezone) ->
+    Res1 = ezic:utc_to_local(Datetime, Timezone),
+    ct:pal("res1u: ~p, ~p, ~p", [Datetime, Timezone, Res1]),
+    Res2 = tz_cache:utc_to_local(Datetime, Timezone),
+    ct:pal("res2u: ~p, ~p, ~p", [Datetime, Timezone, Res2]),
+    Res1 = Res2,
+    ok.
 
