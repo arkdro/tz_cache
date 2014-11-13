@@ -201,17 +201,13 @@ compare_one_item(Datetime, Timezone) ->
 
 compare_one_item_local_to_utc(Datetime, Timezone) ->
     Res1 = ezic:local_to_utc(Datetime, Timezone),
-    ct:pal("res1l: ~p, ~p, ~p", [Datetime, Timezone, Res1]),
     Res2 = tz_cache:local_to_utc(Datetime, Timezone),
-    ct:pal("res2l: ~p, ~p, ~p", [Datetime, Timezone, Res2]),
     Res1 = Res2,
     ok.
 
 compare_one_item_utc_to_local(Datetime, Timezone) ->
     Res1 = ezic:utc_to_local(Datetime, Timezone),
-    ct:pal("res1u: ~p, ~p, ~p", [Datetime, Timezone, Res1]),
     Res2 = tz_cache:utc_to_local(Datetime, Timezone),
-    ct:pal("res2u: ~p, ~p, ~p", [Datetime, Timezone, Res2]),
     Res1 = Res2,
     ok.
 
